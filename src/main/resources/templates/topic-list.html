@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tópicos</title>
+    <!-- Agregar Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1>Lista de Tópicos de Kafka</h1>
+
+    <!-- Mensaje de confirmación si existe -->
+    <div th:if="${message}" class="alert alert-info" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+
+    <!-- Tabla de tópicos -->
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+        <tr>
+            <th>Tópico</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="topic : ${topics}">
+            <td th:text="${topic}"></td>
+            <td>
+                <!-- Enlace para describir el tópico -->
+                <a th:href="@{/kafka/describe-topic/{topicName}(topicName=${topic})}" class="btn btn-info btn-sm">Describir</a> |
+                <!-- Enlace para ver los logs del tópico -->
+                <a th:href="@{/kafka/logs/{topicName}(topicName=${topic})}" class="btn btn-warning btn-sm">Ver Logs</a> |
+                <!-- Formulario para eliminar tópico -->
+                <form th:action="@{/kafka/delete-topic}" method="post" style="display:inline;">
+                    <input type="hidden" name="topicName" th:value="${topic}"/>
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Enlace para crear un nuevo tópico -->
+    <a href="/kafka/create-topic" class="btn btn-success">Crear nuevo tópico</a>
+</div>
+
+<!-- Scripts de Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>

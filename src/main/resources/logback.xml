@@ -1,0 +1,23 @@
+<configuration>
+
+    <!-- Appender para consola -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Personalización del patrón de log con colores -->
+            <pattern>
+                [%blue(%d{HH:mm:ss})] %highlight(%-5level)  %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger raíz, de nivel INFO -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Logger para un paquete específico, sin propagación al logger raíz -->
+    <logger name="com.labotec.traccar" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+</configuration>
