@@ -1,6 +1,5 @@
 package com.labotec.pe.domain.entity;
 
-import com.labotec.pe.infra.database.entity.ConsumerEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;

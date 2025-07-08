@@ -7,9 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Data
-public class AppConfigConstant {
+public class ConfigConstant {
     @Value("${server.port.tcp}")
     private int tcpServerPort;
     @Value("${server.profile.tcp}")
     private ProfileServerTcp profileServerTcp;
+    @Value("${devices.time.minus.status.unknown}")
+    private Long minusSecond;
 }

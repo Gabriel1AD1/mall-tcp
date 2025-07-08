@@ -3,7 +3,7 @@ package com.labotec.pe.infra.factory.notauth;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import com.labotec.pe.app.constants.util.TypeDataPacket;
-import com.labotec.pe.app.port.output.PositionService;
+import com.labotec.pe.app.port.input.PositionService;
 import com.labotec.pe.app.util.MessageTypeExtractor;
 import com.labotec.pe.domain.model.AuthDeviceResponse;
 import com.labotec.pe.domain.model.DataPosition;

@@ -3,7 +3,7 @@ package com.labotec.pe.app.constants.util;
 public final class StatusLogin {
 
     // Constante para el salto de línea
-    public static final String LINE_BREAK = "\r\n";
+    private static final String LINE_BREAK = "\r\n";
 
     // Códigos de respuesta con el salto de línea automáticamente agregado
     public static final String AUTH_SUCCESSFUL = "#AL#1" + LINE_BREAK;               // Autorización exitosa

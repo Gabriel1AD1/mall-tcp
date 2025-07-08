@@ -1,15 +1,16 @@
 package com.labotec.pe.infra.factory.pro.asyncronus.kafka;
 
+import com.labotec.pe.app.port.input.DeviceService;
+import com.labotec.pe.domain.enums.DeviceStatus;
 import com.labotec.pe.domain.model.DeviceContext;
 import com.labotec.pe.infra.server.ActiveChannelsRegistry;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import com.labotec.pe.app.constants.util.StatusLogin;
 import com.labotec.pe.app.constants.util.TypeDataPacket;
-import com.labotec.pe.app.port.input.PositionRepository;
-import com.labotec.pe.app.port.output.AuthDeviceService;
-import com.labotec.pe.app.port.output.PositionService;
+import com.labotec.pe.app.port.output.PositionRepository;
+import com.labotec.pe.app.port.input.AuthDeviceService;
+import com.labotec.pe.app.port.input.PositionService;
 import com.labotec.pe.app.util.JsonUtil;
 import com.labotec.pe.app.util.LoginFactory;
 import com.labotec.pe.app.util.MessageTypeExtractor;
@@ -36,7 +37,8 @@ import static com.labotec.pe.infra.server.TCPServerHandler.AUTH_RESPONSE_KEY;
 public class ProductionKafkaProfileHandler implements TcpProfileHandler {
     private static final Logger log = LoggerFactory.getLogger(ProductionKafkaProfileHandler.class);
     private final AuthDeviceService authDeviceService;
-    private final PositionService deviceService;
+    private final DeviceService deviceService;
+    private final PositionService positionService;
     private final KafkaProducerService kafkaProducerService;
     private final PositionRepository positionRepository;
     private final TCPMetrics tcpMetrics;
@@ -60,6 +62,7 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
                 // Manejar autenticación y asociar objeto
                 authHandlerDevice(authData, ctx);
                 if (authData.getCodeStatus().equals(StatusLogin.AUTH_SUCCESSFUL)) {
+                    deviceService.updateStatus(authData.getId(), DeviceStatus.online);
                     associateObjectWithSession(ctx, authData);
                 }
             }
@@ -82,13 +85,15 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
                 }
                 log.info("AuthDeviceResponse recuperado de la sesión: {}", authResponseFromSession);
 
-                DataPosition dataPacket = deviceService.getDataPacket(message, authResponseFromSession.getImei());
+                DataPosition dataPacket = positionService.getDataPacket(message, authResponseFromSession.getImei());
                 log.info("DataPacket procesado: {}", dataPacket);
 
                 // Enviar posición al Kafka
                 positionRepository.saveOrUpdate(dataPacket.getPosition().getImei(),JsonUtil.toJson(dataPacket.getPosition()));
                 kafkaProducerService.sendPosition(authResponseFromSession.getTopic() ,dataPacket.getPosition() );
                 sendResponse(ctx, dataPacket.getMessageDecode());
+                deviceService.updateStatus(authResponseFromSession.getId(), DeviceStatus.online);
+
             }
         } catch (IllegalArgumentException ex) {
             log.warn("Mensaje enviado incorrectamente");
@@ -99,8 +104,7 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
         // Asociar objeto AuthDeviceResponse al canal
         channel.channel().attr(AUTH_RESPONSE_KEY).set(authData);
         tcpMetrics.incrementTcpConnections();
-        // NUEVO: registrar canal activo
-        ActiveChannelsRegistry.add(authData.getImei(), channel);
+        ActiveChannelsRegistry.add(authData, channel);
         DeviceContext.getInstance().addDevice(authData.getImei());
         log.info("AuthDeviceResponse asociado con la sesión: {}", authData);
     }

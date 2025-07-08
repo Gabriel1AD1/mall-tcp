@@ -19,5 +19,4 @@ public class Device implements Serializable {
     private  String imei;
     private  String password;
     private DeviceStatus status;
-    private String topic;
 }

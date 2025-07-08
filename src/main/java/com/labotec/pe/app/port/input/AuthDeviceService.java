@@ -1,4 +1,4 @@
-package com.labotec.pe.app.port.output;
+package com.labotec.pe.app.port.input;
 
 
 import com.labotec.pe.domain.model.AuthDeviceResponse;

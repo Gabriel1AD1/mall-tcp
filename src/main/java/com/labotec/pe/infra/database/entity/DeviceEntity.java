@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
-@Entity()
-@Table(name = "tbl_device", schema = "tcp_server",indexes = {
+@Entity
+@Table(name = "devices",indexes = {
         @Index(name = "idx_imei", columnList = "imei")
 })
 @Getter
@@ -23,7 +23,7 @@ public class DeviceEntity {
     @Column(name = "imei", unique = true, nullable = false, length = 50)
     private String imei;
 
-    @Column(name = "contraseña", nullable = false, length = 255)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
     @Column(name = "latitude", nullable = false)
     @Comment("Latitud del dispositivo")
@@ -36,6 +36,5 @@ public class DeviceEntity {
     @Enumerated(EnumType.STRING)
     @Comment("Estado del dispositivo online - offline - unknown")
     private DeviceStatus status;
-    @Column(name = "topic" ,nullable = false)
-    private String topic;
+
 }

@@ -1,4 +1,4 @@
-package com.labotec.pe.app.port.input;
+package com.labotec.pe.app.port.output;
 
 import com.labotec.pe.domain.entity.Device;
 import com.labotec.pe.domain.enums.DeviceStatus;

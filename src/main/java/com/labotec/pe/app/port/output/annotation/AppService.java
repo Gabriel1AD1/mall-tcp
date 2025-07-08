@@ -1,4 +1,4 @@
-package com.labotec.pe.app.port.input.annotation;
+package com.labotec.pe.app.port.output.annotation;
 
 import org.springframework.stereotype.Service;
 

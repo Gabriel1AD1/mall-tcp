@@ -11,7 +11,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import lombok.AllArgsConstructor;
 import com.labotec.pe.domain.model.AuthDeviceResponse;
-import com.labotec.pe.infra.config.AppConfigConstant;
+import com.labotec.pe.infra.config.ConfigConstant;
 import com.labotec.pe.infra.factory.TCPServerHandlerFactory;
 import com.labotec.pe.infra.metrics.TCPMetrics;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(TCPServerHandler.class);
-    private final AppConfigConstant appConfigConstant;
+    private final ConfigConstant configConstant;
     private final TCPMetrics tcpMetrics;
     private final TCPServerHandlerFactory tcpServerHandlerFactory;
     // Clave para almacenar y recuperar AuthDeviceResponse
@@ -56,7 +56,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
         try {
             String message = MessageHandler.handleInput((ByteBuf) msg);
             tcpMetrics.incrementTcpRequests();
-            tcpServerHandlerFactory.getHandler(appConfigConstant.getProfileServerTcp()).handleMessage(ctx, message);
+            tcpServerHandlerFactory.getHandler(configConstant.getProfileServerTcp()).handleMessage(ctx, message);
         } finally {
             ReferenceCountUtil.release(msg); // Libera el buffer
         }

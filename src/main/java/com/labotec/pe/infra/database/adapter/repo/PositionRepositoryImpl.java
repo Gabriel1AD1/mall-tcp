@@ -1,7 +1,7 @@
 package com.labotec.pe.infra.database.adapter.repo;
 
 import lombok.AllArgsConstructor;
-import com.labotec.pe.app.port.input.PositionRepository;
+import com.labotec.pe.app.port.output.PositionRepository;
 import com.labotec.pe.infra.database.repo.LogsEntityRepository;
 import org.springframework.stereotype.Repository;
 

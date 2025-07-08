@@ -11,7 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.AllArgsConstructor;
-import com.labotec.pe.infra.config.AppConfigConstant;
+import com.labotec.pe.infra.config.ConfigConstant;
 import com.labotec.pe.infra.factory.TCPServerHandlerFactory;
 import com.labotec.pe.infra.metrics.TCPMetrics;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class NettyServer implements CommandLineRunner {
-    private final AppConfigConstant appConfigConstant;
+    private final ConfigConstant configConstant;
     private final TCPMetrics tcpMetrics;
     private final TCPServerHandlerFactory tcpServerHandlerFactory;
     private final Logger logger = LoggerFactory.getLogger(NettyServer.class);
@@ -43,7 +43,7 @@ public class NettyServer implements CommandLineRunner {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new TCPServerHandler(appConfigConstant,tcpMetrics,tcpServerHandlerFactory));
+                            ch.pipeline().addLast(new TCPServerHandler(configConstant,tcpMetrics,tcpServerHandlerFactory));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 512)
@@ -52,8 +52,8 @@ public class NettyServer implements CommandLineRunner {
                     .childOption(ChannelOption.TCP_NODELAY, true);
 
             // Iniciar el servidor en el puerto configurado
-            ChannelFuture future = serverBootstrap.bind(appConfigConstant.getTcpServerPort()).sync();
-            logger.info("Servidor TCP iniciado en el puerto {}", appConfigConstant.getTcpServerPort());
+            ChannelFuture future = serverBootstrap.bind(configConstant.getTcpServerPort()).sync();
+            logger.info("Servidor TCP iniciado en el puerto {}", configConstant.getTcpServerPort());
             future.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();

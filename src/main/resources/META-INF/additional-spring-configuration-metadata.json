@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "devices.time.seconds.status.unknown",
+      "type": "java.lang.String",
+      "description": "El tiempo en el cual el dispositivo se considerara en estado desconocido"
+    }
+  ]
+}

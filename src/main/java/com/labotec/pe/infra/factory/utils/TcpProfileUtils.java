@@ -18,7 +18,8 @@ import static com.labotec.pe.app.factory.ErrorDataPacketFactory.getErrorForDataP
 public class TcpProfileUtils {
     public static void closeChanel(ChannelHandlerContext ctx, TypeDataPacket typeDataPacket) {
         Optional<String> messageError = getErrorForDataPacket(typeDataPacket, STRUCTURE_ERROR);
-        messageError.ifPresent(s -> sendResponse(ctx, s));
+
+     messageError.ifPresent(s -> sendResponse(ctx, s));
         if (messageError.isEmpty()) ctx.close();
     }
 

@@ -2,7 +2,7 @@ package com.labotec.pe.infra.database.adapter.repo;
 
 import com.labotec.pe.domain.enums.DeviceStatus;
 import lombok.AllArgsConstructor;
-import com.labotec.pe.app.port.input.DeviceRepository;
+import com.labotec.pe.app.port.output.DeviceRepository;
 import com.labotec.pe.domain.entity.Device;
 import com.labotec.pe.infra.database.mapper.DeviceEntityMapper;
 import com.labotec.pe.infra.database.repo.DeviceEntityRepository;
