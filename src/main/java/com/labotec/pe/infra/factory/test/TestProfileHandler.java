@@ -3,6 +3,7 @@ package com.labotec.pe.infra.factory.test;
 import com.labotec.pe.app.port.input.DeviceService;
 import com.labotec.pe.domain.enums.DeviceStatus;
 import com.labotec.pe.infra.server.ActiveChannelsRegistry;
+import com.labotec.pe.infra.services.ConnectionsServices;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import com.labotec.pe.app.constants.util.StatusLogin;
@@ -34,7 +35,7 @@ public class TestProfileHandler implements TcpProfileHandler {
     private final AuthDeviceService authDeviceService;
     private final PositionService positionService;
     private final DeviceService deviceService;
-
+    private final ConnectionsServices connectionsServices;
     private final PositionRepository positionRepository;
     private final TCPMetrics tcpMetrics;
     @Override
@@ -48,13 +49,11 @@ public class TestProfileHandler implements TcpProfileHandler {
             if (typeDataPacket.equals(TypeDataPacket.LOGIN)) {
                 LoginWialon loginWialon = LoginFactory.getLogin(message);
                 log.info("Login del vehículo sin kafka: {}", loginWialon);
-                tcpMetrics.activeSession();
                 AuthDeviceResponse authData = authDeviceService.getAuthorization(loginWialon);
 
                 // Manejar autenticación y asociar objeto
                 authHandlerDevice(authData, ctx);
                 if (authData.getCodeStatus().equals(StatusLogin.AUTH_SUCCESSFUL)) {
-                    deviceService.updateStatus(authData.getId(), DeviceStatus.online);
                     associateObjectWithSession(ctx, authData);
                 }
             }
@@ -82,7 +81,6 @@ public class TestProfileHandler implements TcpProfileHandler {
                 positionRepository.saveOrUpdate(dataPacket.getPosition().getImei(), JsonUtil.toJson(dataPacket.getPosition()));
 
                 sendResponse(ctx, dataPacket.getMessageDecode());
-                deviceService.updateStatus(authResponseFromSession.getId(), DeviceStatus.online);
             }
         } catch (IllegalArgumentException ex) {
             log.warn("Mensaje enviado incorrectamente test");
@@ -95,7 +93,6 @@ public class TestProfileHandler implements TcpProfileHandler {
         // Asociar objeto AuthDeviceResponse al canal
         channel.channel().attr(AUTH_RESPONSE_KEY).set(authData);
         ActiveChannelsRegistry.add(authData, channel);
-
         tcpMetrics.incrementTcpConnections();
         log.info("AuthDeviceResponse asociado con la sesión: {}", authData);
     }

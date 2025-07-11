@@ -17,21 +17,14 @@ import org.hibernate.annotations.Comment;
 public class DeviceEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "imei", unique = true, nullable = false, length = 50)
     private String imei;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "latitude", nullable = false)
-    @Comment("Latitud del dispositivo")
-    private Double latitude;
 
-    @Column(name = "longitude",nullable = false)
-    @Comment("Longitud del dispositivo")
-    private Double longitude;
     @Column(name = "device_status", nullable = false)
     @Enumerated(EnumType.STRING)
     @Comment("Estado del dispositivo online - offline - unknown")

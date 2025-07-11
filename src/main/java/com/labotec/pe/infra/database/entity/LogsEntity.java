@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity()
-@Table(name = "tbl_ultimos_datos", schema = "tcp_server",indexes = {
+@Table(name = "logs", schema = "tcp_server",indexes = {
         @Index(name = "idx_imei", columnList = "imei"),
 })
 @Getter

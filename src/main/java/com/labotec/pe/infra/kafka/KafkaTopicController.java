@@ -1,4 +1,4 @@
-package com.labotec.pe.infra.channels.kafka;
+package com.labotec.pe.infra.kafka;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

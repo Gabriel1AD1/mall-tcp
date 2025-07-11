@@ -57,7 +57,6 @@ public class RestProfileHandler implements TcpProfileHandler {
                 // Manejar autenticación y asociar objeto
                 authHandlerDevice(authData, ctx);
                 if (authData.getCodeStatus().equals(StatusLogin.AUTH_SUCCESSFUL)) {
-                    deviceService.updateStatus(authData.getId(), DeviceStatus.online);
                     associateObjectWithSession(ctx.channel(), authData);
                 }
             }
@@ -80,7 +79,6 @@ public class RestProfileHandler implements TcpProfileHandler {
                 // Enviar posición al Kafka
                 positionRepository.saveOrUpdate(dataPacket.getPosition().getImei(), JsonUtil.toJson(dataPacket.getPosition()));
                 sendResponse(ctx, dataPacket.getMessageDecode());
-                deviceService.updateStatus(authResponseFromSession.getId(), DeviceStatus.online);
             }
         } catch (IllegalArgumentException ex) {
             log.warn("Mensaje enviado incorrectamente");

@@ -1,5 +1,6 @@
 package com.labotec.pe.app.service;
 
+import com.labotec.pe.domain.enums.DeviceStatus;
 import lombok.AllArgsConstructor;
 import com.labotec.pe.app.constants.util.StatusLogin;
 import com.labotec.pe.app.port.output.DeviceRepository;
@@ -47,6 +48,7 @@ public class IAuthDeviceService implements AuthDeviceService {
     private AuthDeviceResponse buildSuccessfulResponse(Device device) {
         return AuthDeviceResponse.builder()
                 .id(device.getId())
+                .deviceStatus(DeviceStatus.online)
                 .imei(device.getImei())
                 .codeStatus(StatusLogin.AUTH_SUCCESSFUL)
                 .build();

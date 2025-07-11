@@ -1,6 +1,7 @@
 package com.labotec.pe.infra.server;
 
 import com.labotec.pe.domain.model.DeviceContext;
+import com.labotec.pe.infra.services.ConnectionsServices;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -27,6 +28,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     private final ConfigConstant configConstant;
     private final TCPMetrics tcpMetrics;
     private final TCPServerHandlerFactory tcpServerHandlerFactory;
+    private final ConnectionsServices connectionsServices;
     // Clave para almacenar y recuperar AuthDeviceResponse
     public static final AttributeKey<AuthDeviceResponse> AUTH_RESPONSE_KEY =
             AttributeKey.valueOf("authResponse");
@@ -43,10 +45,10 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
         AuthDeviceResponse auth = ctx.channel().attr(TCPServerHandler.AUTH_RESPONSE_KEY).get();
         if (auth != null) {
             log.info("El cliente con IMEI {} se ha desconectado.", auth.getImei());
+            connectionsServices.deviceDisconnected(auth);
             ActiveChannelsRegistry.remove(auth.getImei());
             DeviceContext.getInstance().removeDeviceByImei(auth.getImei()); // opcional
         }
-        tcpMetrics.desactiveSession();
         log.warn("La conexión con el cliente se ha cerrado.");
         super.channelInactive(ctx);
     }

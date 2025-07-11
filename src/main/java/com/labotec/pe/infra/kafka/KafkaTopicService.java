@@ -1,4 +1,4 @@
-package com.labotec.pe.infra.channels.kafka;
+package com.labotec.pe.infra.kafka;
 
 import org.apache.kafka.clients.admin.*;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.labotec.pe.infra.channels.kafka;
+package com.labotec.pe.infra.kafka;
 
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

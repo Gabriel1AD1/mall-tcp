@@ -1,9 +1,8 @@
 package com.labotec.pe.infra.factory.pro.asyncronus.kafka;
 
 import com.labotec.pe.app.port.input.DeviceService;
-import com.labotec.pe.domain.enums.DeviceStatus;
-import com.labotec.pe.domain.model.DeviceContext;
 import com.labotec.pe.infra.server.ActiveChannelsRegistry;
+import com.labotec.pe.infra.services.ConnectionsServices;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import com.labotec.pe.app.constants.util.StatusLogin;
@@ -11,15 +10,13 @@ import com.labotec.pe.app.constants.util.TypeDataPacket;
 import com.labotec.pe.app.port.output.PositionRepository;
 import com.labotec.pe.app.port.input.AuthDeviceService;
 import com.labotec.pe.app.port.input.PositionService;
-import com.labotec.pe.app.util.JsonUtil;
 import com.labotec.pe.app.util.LoginFactory;
 import com.labotec.pe.app.util.MessageTypeExtractor;
 import com.labotec.pe.domain.model.AuthDeviceResponse;
 import com.labotec.pe.domain.model.DataPosition;
 import com.labotec.pe.domain.model.LoginWialon;
-import com.labotec.pe.infra.channels.kafka.KafkaProducerService;
+import com.labotec.pe.infra.channels.kafka.productor.positions.KafkaProducerPositionService;
 import com.labotec.pe.infra.factory.TcpProfileHandler;
-import com.labotec.pe.infra.metrics.TCPMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,9 +36,9 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
     private final AuthDeviceService authDeviceService;
     private final DeviceService deviceService;
     private final PositionService positionService;
-    private final KafkaProducerService kafkaProducerService;
+    private final KafkaProducerPositionService kafkaProducerPositionService;
+    private final ConnectionsServices connectionsServices;
     private final PositionRepository positionRepository;
-    private final TCPMetrics tcpMetrics;
 
 
     @Override
@@ -62,7 +59,6 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
                 // Manejar autenticación y asociar objeto
                 authHandlerDevice(authData, ctx);
                 if (authData.getCodeStatus().equals(StatusLogin.AUTH_SUCCESSFUL)) {
-                    deviceService.updateStatus(authData.getId(), DeviceStatus.online);
                     associateObjectWithSession(ctx, authData);
                 }
             }
@@ -88,12 +84,9 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
                 DataPosition dataPacket = positionService.getDataPacket(message, authResponseFromSession.getImei());
                 log.info("DataPacket procesado: {}", dataPacket);
 
-                // Enviar posición al Kafka
-                positionRepository.saveOrUpdate(dataPacket.getPosition().getImei(),JsonUtil.toJson(dataPacket.getPosition()));
-                kafkaProducerService.sendPosition(authResponseFromSession.getTopic() ,dataPacket.getPosition() );
+                kafkaProducerPositionService.sendPosition(dataPacket.getPosition());
                 sendResponse(ctx, dataPacket.getMessageDecode());
-                deviceService.updateStatus(authResponseFromSession.getId(), DeviceStatus.online);
-
+                authResponseFromSession.online();
             }
         } catch (IllegalArgumentException ex) {
             log.warn("Mensaje enviado incorrectamente");
@@ -103,9 +96,9 @@ public class ProductionKafkaProfileHandler implements TcpProfileHandler {
     private void associateObjectWithSession(ChannelHandlerContext channel, AuthDeviceResponse authData) {
         // Asociar objeto AuthDeviceResponse al canal
         channel.channel().attr(AUTH_RESPONSE_KEY).set(authData);
-        tcpMetrics.incrementTcpConnections();
+        connectionsServices.deviceConnected(authData);
+
         ActiveChannelsRegistry.add(authData, channel);
-        DeviceContext.getInstance().addDevice(authData.getImei());
         log.info("AuthDeviceResponse asociado con la sesión: {}", authData);
     }
 }

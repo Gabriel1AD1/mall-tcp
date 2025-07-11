@@ -22,7 +22,29 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred",
                 "debugMessage",
-                Map.of("ERROR", ex.getStackTrace())
+                Map.of("error", ex.getMessage())
+        );
+
+        // Obtener detalles de la solicitud
+        String method = request.getMethod(); // Obtener método HTTP
+        String endpoint = request.getRequestURI(); // Obtener URI
+        String params = request.getParameterMap().toString(); // Convertir parámetros a String
+        String pathVariables = ""; // Variables de ruta pueden extraerse del controlador o RequestAttributes
+        String body = (String) request.getAttribute("body"); // Obtener cuerpo capturado por el filtro
+        String stackTrace = getStackTrace(ex); // Convertir stack trace a String
+
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleGlobalException(RuntimeException ex, HttpServletRequest request) {
+        // Mensaje de depuración opcional
+
+        // Crear ApiError
+        ApiError apiError = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred",
+                "debugMessage",
+                Map.of("error", ex.getMessage())
         );
 
         // Obtener detalles de la solicitud

@@ -1,5 +1,6 @@
 package com.labotec.pe.infra.server;
 
+import com.labotec.pe.infra.services.ConnectionsServices;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 public class NettyServer implements CommandLineRunner {
     private final ConfigConstant configConstant;
     private final TCPMetrics tcpMetrics;
+    private final ConnectionsServices connectionsServices;
     private final TCPServerHandlerFactory tcpServerHandlerFactory;
     private final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
@@ -43,7 +45,7 @@ public class NettyServer implements CommandLineRunner {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new TCPServerHandler(configConstant,tcpMetrics,tcpServerHandlerFactory));
+                            ch.pipeline().addLast(new TCPServerHandler(configConstant,tcpMetrics,tcpServerHandlerFactory,connectionsServices));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 512)

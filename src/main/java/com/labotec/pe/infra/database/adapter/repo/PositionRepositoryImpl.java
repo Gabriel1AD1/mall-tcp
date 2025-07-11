@@ -11,6 +11,5 @@ public class PositionRepositoryImpl implements PositionRepository {
     private final LogsEntityRepository logsEntityRepository;
     @Override
     public void saveOrUpdate(String imei, String position) {
-        logsEntityRepository.insertUpdate(imei,position);
     }
 }

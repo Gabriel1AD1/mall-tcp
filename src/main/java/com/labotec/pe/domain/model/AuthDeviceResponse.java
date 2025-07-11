@@ -1,5 +1,6 @@
 package com.labotec.pe.domain.model;
 
+import com.labotec.pe.domain.enums.DeviceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,12 +17,14 @@ import java.time.Instant;
 public class AuthDeviceResponse {
     private Long id;
     private String imei;
+    private DeviceStatus deviceStatus;
     private String codeStatus;
     private Instant timestamp;
 
     public static AuthDeviceResponseBuilder builder(){
         return new AuthDeviceResponseBuilder()
                 .id(1L)
+                .deviceStatus(DeviceStatus.offline)
                 .timestamp(Instant.now())
                 .imei("")
                 .codeStatus("");
@@ -34,7 +37,13 @@ public class AuthDeviceResponse {
                 .timestamp(Instant.now())
                 .build();
     }
-
+    public void online(){
+        this.deviceStatus = DeviceStatus.online;
+        this.timestamp = Instant.now();
+    }
+    public void unknown(){
+        this.deviceStatus = DeviceStatus.unknown;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,4 +1,4 @@
-package com.labotec.pe.infra.channels.kafka;
+package com.labotec.pe.infra.kafka;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
