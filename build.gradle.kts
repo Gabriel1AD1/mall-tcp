@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     java
     id("org.springframework.boot") version "3.3.4"
@@ -50,7 +52,9 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.33") // Driver MySQL
 
 }
-
+tasks.named<BootJar>("bootJar") {
+    archiveFileName.set("mall-tcp.jar")
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()

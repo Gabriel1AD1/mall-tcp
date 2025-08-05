@@ -21,7 +21,7 @@ import java.util.Set;
 import static com.labotec.pe.app.constants.api.ApiManager.v1;
 
 @RestController
-@RequestMapping(v1 + "device")
+@RequestMapping(v1 + "devices")
 @RequiredArgsConstructor
 @Tag(name = "Device API", description = "Operaciones relacionadas con dispositivos")
 public class DeviceController {
