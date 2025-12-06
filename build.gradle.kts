@@ -53,7 +53,7 @@ dependencies {
 
 }
 tasks.named<BootJar>("bootJar") {
-    archiveFileName.set("mall-tcp.jar")
+    archiveFileName.set("ms-tcp.jar")
 }
 
 tasks.withType<Test> {

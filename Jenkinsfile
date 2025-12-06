@@ -2,69 +2,75 @@ pipeline {
     agent any
 
     environment {
-        // 📦 CONFIGURACIÓN GENERAL
-        PROJECT_NAME     = 'mall-tcp'               // Nombre del proyecto (usado para JAR y servicio)
-        BUILD_DIR        = 'build/libs'                 // Carpeta donde se genera el JAR
-        JAR_PATTERN      = "mall-*.jar"      // Patrón del nombre del JAR
-        SERVICE_NAME     = "${PROJECT_NAME}.service"    // Nombre del servicio systemd
+        PROJECT_NAME     = 'mall-tcp-service'
+        BUILD_DIR        = 'build/libs'
+        JAR_PATTERN      = "ms-tcp.jar"
+        DOCKER_IMAGE     = "mall-tcp"
+        NETWORK          = "home-net"
 
-        // 🌍 CONFIGURACIÓN DEL SERVIDOR
         SERVER_USER      = "root"
-        SERVER_HOST      = "173.212.201.115"
-        SERVER_PORT      = "3625"
-        SERVER_PATH      = "/home/${PROJECT_NAME}/"
-
-        // 🔐 CREDENCIALES
-        SSH_CREDENTIAL_ID  = 'server-kryos-sh'          // ID de la credencial SSH
+        SERVER_HOST      = "173.249.36.100"
+        SERVER_PORT      = "22"
+        PUERTO_HTTP      = "4601"
+        SSH_CREDENTIAL_ID  = 'puyu-iot'
+        ENV_FILE        = '/home/mall-project/mall-tcp/.env'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
-                script {
-                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-                    echo "Se ha traído la rama: ${currentBranch}"
-                }
             }
         }
 
-
         stage('Build') {
             steps {
-                echo 'Dando permisos de ejecución a gradlew...'
                 sh 'chmod +x gradlew'
-                echo "Construyendo el proyecto ${PROJECT_NAME}..."
                 sh './gradlew clean build -x test'
             }
         }
 
-        stage('Deploy') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    echo 'Buscando el archivo JAR generado...'
                     def jarFile = sh(
                         script: "find ${BUILD_DIR} -name '${JAR_PATTERN}' | head -n 1",
                         returnStdout: true
                     ).trim()
 
-                    if (jarFile) {
-                        echo "JAR encontrado: ${jarFile}"
+                    if (!jarFile) {
+                        error "No se encontró JAR: ${JAR_PATTERN}"
+                    }
 
-                        withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-                            def jarName = jarFile.tokenize('/').last()
+                    echo "Construyendo imagen Docker con JAR ${jarFile}..."
+                    sh """
+                        cp ${jarFile} ./app.jar
+                        docker build -t ${DOCKER_IMAGE} .
+                    """
+                }
+            }
+        }
 
-                            echo "Copiando ${jarName} al servidor remoto..."
-                            sh "scp -i $SSH_KEY -P ${SERVER_PORT} ${jarFile} ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}${jarName}"
+        stage('Deploy to Server') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
+                        sh "ssh-keyscan -p ${SERVER_PORT} ${SERVER_HOST} >> ~/.ssh/known_hosts"
+                        // Guardar imagen en un tar
+                        sh "docker save ${DOCKER_IMAGE} -o ${PROJECT_NAME}.tar"
 
-                            echo 'Dando permisos al archivo copiado...'
-                            sh "ssh -i $SSH_KEY -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} 'chmod 777 ${SERVER_PATH}${jarName}'"
+                        // Copiar imagen al servidor
+                        sh "scp -i $SSH_KEY -P ${SERVER_PORT} ${PROJECT_NAME}.tar ${SERVER_USER}@${SERVER_HOST}:/tmp/"
 
-                            echo "Reiniciando el servicio ${SERVICE_NAME} en el servidor..."
-                            sh "ssh -i $SSH_KEY -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} 'sudo systemctl restart ${SERVICE_NAME}'"
-                        }
-                    } else {
-                        error "❌ No se encontró el archivo JAR que coincida con el patrón '${JAR_PATTERN}'."
+                        // Ejecutar comandos remotos para cargar y correr el contenedor
+                        sh """
+                        ssh -i $SSH_KEY -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} '
+                            docker load -i /tmp/${PROJECT_NAME}.tar
+                            docker stop ${PROJECT_NAME} || true
+                            docker rm ${PROJECT_NAME} || true
+                            docker run -d --restart always --network ${NETWORK} --name ${PROJECT_NAME} --env-file ${ENV_FILE} -p ${PUERTO_HTTP}:${PUERTO_HTTP} ${DOCKER_IMAGE}
+                        '
+                        """
                     }
                 }
             }
@@ -73,24 +79,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ El pipeline se ejecutó correctamente.'
+            echo "✅ Deploy completado"
         }
         failure {
-            echo '❌ Error en la ejecución del pipeline.'
-            script {
-                def errorMessage = currentBuild.currentResult == 'FAILURE'
-                    ? "Error en el pipeline: ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.shortDescription}"
-                    : "Error desconocido."
-                echo errorMessage
-
-                echo 'Obteniendo logs del servicio remoto...'
-                sh "echo '⚠️ Este comando es local, no se puede obtener journalctl del servidor remoto aquí sin SSH.'"
-
-                echo 'Obteniendo logs de Jenkins (workspace)...'
-                sh 'cat $WORKSPACE/logs/*.log > jenkins-logs.txt || echo "No se encontraron logs en el workspace."'
-
-                archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
-            }
+            echo "❌ Error en el pipeline"
         }
     }
 }
