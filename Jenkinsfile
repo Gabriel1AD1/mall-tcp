@@ -12,6 +12,7 @@ pipeline {
         SERVER_HOST      = "173.249.36.100"
         SERVER_PORT      = "22"
         PUERTO_HTTP      = "4601"
+        PUERTO_TCP       = "5040"
         SSH_CREDENTIAL_ID  = 'puyu-iot'
         ENV_FILE        = '/home/mall-project/mall-tcp/.env'
     }
@@ -68,7 +69,11 @@ pipeline {
                             docker load -i /tmp/${PROJECT_NAME}.tar
                             docker stop ${PROJECT_NAME} || true
                             docker rm ${PROJECT_NAME} || true
-                            docker run -d --restart always --network ${NETWORK} --name ${PROJECT_NAME} --env-file ${ENV_FILE} -p ${PUERTO_HTTP}:${PUERTO_HTTP} ${DOCKER_IMAGE}
+                            docker run -d --restart always --network ${NETWORK} --name ${PROJECT_NAME} \
+                              --env-file ${ENV_FILE} \
+                              -p ${PUERTO_HTTP}:${PUERTO_HTTP} \
+                              -p ${PUERTO_TCP}:${PUERTO_TCP} \
+                              ${DOCKER_IMAGE}
                         '
                         """
                     }
