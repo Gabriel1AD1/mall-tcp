@@ -19,7 +19,7 @@ import java.util.Map;
 @ConditionalOnProperty(name = "app.kafka.enabled", havingValue = "true")
 public class KafkaProducerConfig {
 
-    @Value("${kafka.bootstrap-servers:localhost:9092}")
+    @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${kafka.topic.devices}")
