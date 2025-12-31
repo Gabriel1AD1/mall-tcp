@@ -32,7 +32,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     // Clave para almacenar y recuperar AuthDeviceResponse
     public static final AttributeKey<AuthDeviceResponse> AUTH_RESPONSE_KEY =
             AttributeKey.valueOf("authResponse");
-    private static final long INACTIVITY_TIMEOUT = 1L; // Tiempo de inactividad en minutos
+    private static final long INACTIVITY_TIMEOUT = 10L; // Tiempo de inactividad en minutos
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -75,7 +75,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         ChannelPipeline pipeline = ctx.pipeline();
-        pipeline.addLast(new IdleStateHandler(1, 0, 0, TimeUnit.MINUTES));
+        pipeline.addLast(new IdleStateHandler(INACTIVITY_TIMEOUT, 0, 0, TimeUnit.MINUTES));
     }
 
     @Override
