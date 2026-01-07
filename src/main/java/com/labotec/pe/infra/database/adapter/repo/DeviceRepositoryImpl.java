@@ -29,8 +29,7 @@ public class DeviceRepositoryImpl implements DeviceRepository {
   @Override
   public Optional<Device> getDeviceByImei(String imei) {
     Optional<DeviceCache> deviceEntity =
-        Optional.ofNullable(cacheDao.get(keyImei.concat(imei), DeviceCache.class));
-
+        Optional.ofNullable(cacheDao.get(keyImei+imei, DeviceCache.class));
     return deviceEntity.map(deviceEntityMapper::toModelDomain);
   }
 
