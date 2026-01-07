@@ -13,19 +13,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnectionsServicesI implements ConnectionsServices {
     private final TCPMetrics tcpMetrics;
-    private final DeviceService deviceService;
-    private final KafkaProducerEventsService kafkaProducerEventsService;
+  private final KafkaProducerEventsService kafkaProducerEventsService;
     @Override
     public void deviceConnected(AuthDeviceResponse authData) {
         tcpMetrics.incrementTcpConnections();
-        deviceService.updateStatusById(authData.getId(), DeviceStatus.online);
         kafkaProducerEventsService.sendDeviceEvents(DeviceStatusByKafka.online(authData.getImei(),authData.getId()));
     }
 
     @Override
     public void deviceDisconnected(AuthDeviceResponse authData) {
         tcpMetrics.decrementTcpConnections();
-        deviceService.updateStatusById(authData.getId(), DeviceStatus.offline);
         kafkaProducerEventsService.sendDeviceEvents(DeviceStatusByKafka.offline(authData.getImei(),authData.getId()));
 
 
@@ -33,7 +30,6 @@ public class ConnectionsServicesI implements ConnectionsServices {
 
     @Override
     public void deviceUnknown(AuthDeviceResponse authData) {
-        deviceService.updateStatusById(authData.getId(), DeviceStatus.unknown);
         kafkaProducerEventsService.sendDeviceEvents((DeviceStatusByKafka.unknown(authData.getImei(),authData.getId())));
 
     }

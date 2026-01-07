@@ -27,7 +27,6 @@ public class KeepAliveSchedule {
                 connectionsServices.deviceUnknown(device);
             }
         });
-
     }
 
 

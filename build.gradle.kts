@@ -21,6 +21,8 @@ repositories {
 
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
     implementation("io.netty:netty-all:4.1.88.Final")
     implementation("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")

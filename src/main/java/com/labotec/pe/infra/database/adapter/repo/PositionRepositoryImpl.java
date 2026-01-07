@@ -8,8 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @AllArgsConstructor
 public class PositionRepositoryImpl implements PositionRepository {
-    private final LogsEntityRepository logsEntityRepository;
-    @Override
+  @Override
     public void saveOrUpdate(String imei, String position) {
     }
 }

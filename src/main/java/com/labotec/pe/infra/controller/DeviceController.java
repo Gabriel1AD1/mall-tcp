@@ -44,27 +44,7 @@ public class DeviceController {
         }
         return ActiveChannelsRegistry.getAllDevices();
     }
-    @PostMapping
-    DeviceResponse createDevice(@RequestHeader ("key") String authorization ,@RequestBody RequestDeviceDTO request){
-        if (!key.equals(authorization)) {
-            throw new RuntimeException("Unauthorized access");
-        }
-        return deviceService.create(request);
-    }
-    @PutMapping("/{id}")
-    DeviceResponse updateDevice(@RequestHeader ("key") String authorization ,@PathVariable Long id,@RequestBody RequestDeviceDTO request){
-        if (!key.equals(authorization)) {
-            throw new RuntimeException("Unauthorized access");
-        }
-        return deviceService.update(id,request);
-    }
-    @DeleteMapping("/{id}")
-    DeviceResponse deleteDevice(@RequestHeader ("key") String authorization ,@PathVariable Long id) {
-        if (!key.equals(authorization)) {
-            throw new RuntimeException("Unauthorized access");
-        }
-        return deviceService.delete(id);
-    }
+
     @GetMapping
     Set<Device> getAllDevices(@RequestHeader ("key") String authorization ,@RequestHeader List<DeviceStatus> statuses) {
         log.info("Tratando de obtener todos los dispositivos");

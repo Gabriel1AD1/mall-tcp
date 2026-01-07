@@ -1,6 +1,7 @@
 package com.labotec.pe.infra.database.mapper;
 
 import com.labotec.pe.domain.entity.Device;
+import com.labotec.pe.infra.config.DeviceCache;
 import com.labotec.pe.infra.database.entity.DeviceEntity;
 import org.mapstruct.*;
 
@@ -9,7 +10,7 @@ public interface DeviceEntityMapper {
     DeviceEntity toEntity(Device deviceModel);
 
     Device toDto(DeviceEntity deviceEntity);
-
+    Device toModelDomain(DeviceCache deviceCache);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     DeviceEntity partialUpdate(Device deviceModel, @MappingTarget DeviceEntity deviceEntity);
 }
